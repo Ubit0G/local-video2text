@@ -17,3 +17,6 @@ env/
 workspace
 
 .env
+
+# Input и Output данные
+data/
