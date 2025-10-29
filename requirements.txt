@@ -1,0 +1,4 @@
+git+https://github.com/openai/whisper.git
+pydub==0.25.1
+torch>=2.0.0,<2.4.0
+torchaudio>=2.0.0,<2.4.0
