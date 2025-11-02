@@ -8,7 +8,7 @@ from src.pipeline import VideoToTextPipeline
 def main():
     parser = argparse.ArgumentParser(description="Convert video to text using local Whisper.")
     parser.add_argument("video", type=Path, help="Path to input video")
-    parser.add_argument("--model", default="base", help="Whisper model size")
+    parser.add_argument("--model", default="turbo", help="Whisper model size")
     parser.add_argument("--language", default=None, help="Language code (e.g., 'ru')")
     parser.add_argument("--temp-dir", type=Path, default=Path("data/temp"), help="Temp audio dir")
 

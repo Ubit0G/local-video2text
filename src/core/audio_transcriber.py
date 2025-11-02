@@ -17,7 +17,12 @@ class WhisperTranscriber(Transcriber):
     def __init__(self, model_size: str = "base", device: str = "auto"):
         import whisper
         if device == "auto":
-            device = "cuda" if whisper.torch.cuda.is_available() else "cpu"
+            if whisper.torch.cuda.is_available():
+                device = "cuda" 
+                print("GPU")
+            else :
+                device = "cpu"
+                print("CPU")
         self.model = whisper.load_model(model_size)
         self.device = device
 
@@ -27,7 +32,7 @@ class WhisperTranscriber(Transcriber):
             raise FileNotFoundError(f"Audio file not found: {audio_path}")
         
         # Вызов Whisper
-        result = self.model.transcribe(str(audio_path), language=language, verbose=True)
+        result = self.model.transcribe(str(audio_path), language=language, verbose=True, fp16=False)
 
         segments = [
             Segment(start=s["start"], end=s["end"], text=s["text"].strip())
