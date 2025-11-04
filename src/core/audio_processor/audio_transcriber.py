@@ -5,7 +5,7 @@ import abc
 from pathlib import Path
 from typing import Optional, Union
 
-from src.datamodels.audio_transccript import Transcript, Segment
+from src.datamodels.audio_transcript import Transcript, Segment
 
 class Transcriber(abc.ABC):
     @abc.abstractmethod
@@ -14,7 +14,7 @@ class Transcriber(abc.ABC):
 
 # Распознование при помощи openai-whisper
 class WhisperTranscriber(Transcriber):
-    def __init__(self, model_size: str = "base", device: str = "auto"):
+    def __init__(self, model_size: str = "turbo", device: str = "auto"):
         import whisper
         if device == "auto":
             if whisper.torch.cuda.is_available():
@@ -32,7 +32,7 @@ class WhisperTranscriber(Transcriber):
             raise FileNotFoundError(f"Audio file not found: {audio_path}")
         
         # Вызов Whisper
-        result = self.model.transcribe(str(audio_path), language=language, verbose=True, fp16=False)
+        result = self.model.transcribe(str(audio_path), language=language, fp16=False)
 
         segments = [
             Segment(start=s["start"], end=s["end"], text=s["text"].strip())

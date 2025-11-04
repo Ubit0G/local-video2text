@@ -1,5 +1,12 @@
+--extra-index-url https://download.pytorch.org/whl/cu130
+
+torch 
+torchvision
+
 openai-whisper
 pydub==0.25.1
-torch>=2.0.0,<2.4.0
-torchaudio>=2.0.0,<2.4.0
 numpy>=1.20,<2
+scenedetect[opencv]==0.6.7.1
+transformers>=4.30.0
+easyocr>=1.7.0
+pillow>=9.0.0

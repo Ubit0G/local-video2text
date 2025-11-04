@@ -1,35 +1,35 @@
 import argparse
 from pathlib import Path
 
-from src.core.audio_extractor import FfmpegAudioExtractor
-from src.core.audio_transcriber import WhisperTranscriber
+from src.core.audio_processor.audio_extractor import FfmpegAudioExtractor
+from src.core.audio_processor.audio_transcriber import WhisperTranscriber
 from src.pipeline import VideoToTextPipeline
+from src.core.video_processor.scene_detector import SceneDetectionProcessor
+from src.core.video_processor.frame_sampler import FrameSampler
+from src.core.video_processor.frame_processor import FrameProcessor
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert video to text using local Whisper.")
+    parser = argparse.ArgumentParser(description="Convert video to text")
     parser.add_argument("video", type=Path, help="Path to input video")
-    parser.add_argument("--model", default="turbo", help="Whisper model size")
-    parser.add_argument("--language", default=None, help="Language code (e.g., 'ru')")
-    parser.add_argument("--temp-dir", type=Path, default=Path("data/temp"), help="Temp audio dir")
 
     args = parser.parse_args()
 
-    extractor = FfmpegAudioExtractor()
-    transcriber = WhisperTranscriber(model_size=args.model)
+    audio_extractor = FfmpegAudioExtractor()
+    transcriber = WhisperTranscriber()
+    scenedetector = SceneDetectionProcessor(threshold=28.0, min_scene_duration_sec=2.0)
+    framesampler = FrameSampler()
+    frameprocessor = FrameProcessor(ocr_languages=["ru", "en"])
+
     pipeline = VideoToTextPipeline(
-        audio_extractor=extractor,
-        transcriber=transcriber,
-        temp_dir=args.temp_dir
+        audio_extractor = audio_extractor,
+        transcriber = transcriber,
+        scenedetector  = scenedetector,
+        framesampler = framesampler,
+        frameprocessor = frameprocessor
     )
 
-    transcript = pipeline.run(args.video, language=args.language)
+    pipeline.run(args.video)
 
-    output_path = Path("data/output") / f"{args.video.stem}.txt"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        for seg in transcript.segments:
-            f.write(f"[{seg.start:.1f}s → {seg.end:.1f}s] {seg.text}\n")
-    print(f"✅ Transcription saved to {output_path}")
 
 if __name__ == "__main__":
     main()
