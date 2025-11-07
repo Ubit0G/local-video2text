@@ -15,12 +15,8 @@ class FrameSamplerAbs(ABC):
 
 class FrameSampler(FrameSamplerAbs):
 
-    # Извлечение строго одного кадра из середины сцены
-    def sample_frames(
-        self,
-        video_path: Union[str, Path],
-        scenes: List[Scene],
-    ) -> List[Tuple[float, np.ndarray]]:
+    # Извлечение кадра из середины сцены и начала сцены
+    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene]) -> List[Tuple[float, np.ndarray]]:
 
         if not scenes:
             return []
@@ -41,16 +37,21 @@ class FrameSampler(FrameSamplerAbs):
             sampled_frames: List[Tuple[float, np.ndarray]] = []
 
             for scene in scenes:
-                # Вычисляем середину сцены
+
+                start_time = scene.start_seconds
+                start_frame_number = int(mid_time * fps)
+                cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
+                ret_start, frame_start = cap.read()
+
                 mid_time = (scene.start_seconds + scene.end_seconds) / 2.0
-                frame_number = int(mid_time * fps)
+                mid_frame_number = int(mid_time * fps)
+                cap.set(cv2.CAP_PROP_POS_FRAMES, mid_frame_number)
+                ret_mid, frame_mid = cap.read()
 
-                cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
-                ret, frame = cap.read()
-
-                if ret:
-                    sampled_frames.append((mid_time, frame))
-
+                if ret_start:
+                    sampled_frames.append((start_time, frame_start))
+                if ret_mid:
+                    sampled_frames.append((mid_time, frame_mid))
 
             return sampled_frames
 
