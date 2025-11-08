@@ -10,13 +10,13 @@ from src.datamodels.video_transcript import Scene, Picture
 
 class FrameSamplerAbs(ABC):
     @abstractmethod
-    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene]) -> List[Picture]:
+    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene], use_only_mid=True) -> List[Picture]:
         pass
 
 class FrameSampler(FrameSamplerAbs):
 
     # Извлечение кадра из середины сцены и начала сцены
-    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene]) -> List[Picture]:
+    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene], use_only_mid=True) -> List[Picture]:
 
         if not scenes:
             return []
@@ -38,18 +38,20 @@ class FrameSampler(FrameSamplerAbs):
 
             for scene_id, scene in enumerate(scenes):
 
-                start_time = scene.start_seconds
-                start_frame_number = int(start_time * fps)
-                cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
-                ret_start, frame_start = cap.read()
+                if not use_only_mid:
+                    start_time = scene.start_seconds
+                    start_frame_number = int(start_time * fps)
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
+                    ret_start, frame_start = cap.read()
+
+                    if ret_start:
+                        sampled_frames.append(Picture(time = start_time, scene_id = scene_id, picture = frame_start))
 
                 mid_time = (scene.start_seconds + scene.end_seconds) / 2.0
                 mid_frame_number = int(mid_time * fps)
                 cap.set(cv2.CAP_PROP_POS_FRAMES, mid_frame_number)
                 ret_mid, frame_mid = cap.read()
 
-                if ret_start:
-                    sampled_frames.append(Picture(time = start_time, scene_id = scene_id, picture = frame_start))
                 if ret_mid:
                     sampled_frames.append(Picture(time = mid_time, scene_id = scene_id, picture = frame_mid))
 
