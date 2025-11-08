@@ -73,13 +73,12 @@ class FrameProcessor(FrameProcessorAbs):
 
             results.append((frame.time, frame.scene_id, caption, ocr_texts))
 
+        logger.info("Получено описание видео")
         return results
 
     # Генерирует описание кадра через Florence-2
     def _generate_caption(self, frame_bgr: np.ndarray) -> str:
-        """
-        Генерирует детализированное описание кадра через Florence-2.
-        """
+
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         pil_image = Image.fromarray(frame_rgb)
 
@@ -116,8 +115,6 @@ class FrameProcessor(FrameProcessorAbs):
 
     # Распознаёт текст на кадре через EasyOCR
     def _run_ocr(self, frame_bgr: np.ndarray) -> List[str]:
-        """
-        Распознаёт текст на кадре через EasyOCR.
-        """
+
         results = self.ocr_reader.readtext(frame_bgr)
         return [text.strip() for (bbox, text, conf) in results if conf >= 0.5]

@@ -1,5 +1,6 @@
 # Деление видео на сцены
 
+import logging
 from abc import ABC, abstractmethod
 from typing import List, Union, Optional
 from pathlib import Path
@@ -7,6 +8,8 @@ from scenedetect import SceneManager, open_video
 from scenedetect.detectors import ContentDetector
 
 from src.datamodels.video_transcript import Scene
+
+logger = logging.getLogger(__name__)
 
 class SceneDetectionAbs(ABC):
     @abstractmethod
@@ -52,6 +55,7 @@ class SceneDetectionProcessor(SceneDetectionAbs):
         if self.min_scene_duration_sec is not None:
             scenes = self._merge_short_scenes(scenes)
 
+        logger.info(f"Получено {len(scenes)} сцен из видео")
         return scenes
 
     # Постобработка коротких сцен

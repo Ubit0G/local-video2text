@@ -8,6 +8,9 @@ from src.core.video_processor.scene_detector import SceneDetectionProcessor
 from src.core.video_processor.frame_sampler import FrameSampler
 from src.core.video_processor.frame_processor import FrameProcessor
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 def main():
     parser = argparse.ArgumentParser(description="Convert video to text")
     parser.add_argument("video", type=Path, help="Path to input video")

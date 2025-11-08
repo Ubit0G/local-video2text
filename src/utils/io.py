@@ -50,5 +50,3 @@ def save_results_to_json(
     ]
     with open(output_path / "video_description.json", "w", encoding="utf-8") as f:
         json.dump(video_description, f, ensure_ascii=False, indent=2)
-
-    print(f"Результаты сохранены в: {output_path.resolve()}")

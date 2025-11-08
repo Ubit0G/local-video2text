@@ -4,9 +4,12 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Tuple, Union
 import cv2
+import logging
 import numpy as np
 
 from src.datamodels.video_transcript import Scene, Picture
+
+logger = logging.getLogger(__name__)
 
 class FrameSamplerAbs(ABC):
     @abstractmethod
@@ -55,6 +58,7 @@ class FrameSampler(FrameSamplerAbs):
                 if ret_mid:
                     sampled_frames.append(Picture(time = mid_time, scene_id = scene_id, picture = frame_mid))
 
+            logger.info(f"Получено {len(sampled_frames)} кадров из сцен")
             return sampled_frames
 
         finally:

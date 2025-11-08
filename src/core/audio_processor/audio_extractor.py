@@ -1,8 +1,11 @@
 # Извлечение аудио из видео
 
 import abc
+import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
+
+logger = logging.getLogger(__name__)
 
 class AudioExtractor(abc.ABC):
     @abc.abstractmethod
@@ -28,4 +31,5 @@ class FfmpegAudioExtractor(AudioExtractor):
         audio = audio.set_frame_rate(self.sample_rate).set_channels(self.channels)
         audio.export(output_audio_path, format="wav")
         
+        logger.info(f"Аудио успешно извлечено и сохранено: {output_audio_path}")
         return output_audio_path

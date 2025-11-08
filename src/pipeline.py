@@ -1,5 +1,6 @@
 # Управление процессом преобразования видео в текст
 
+import logging
 from pathlib import Path
 from typing import Optional
 
@@ -9,6 +10,8 @@ from src.core.video_processor.scene_detector import SceneDetectionAbs
 from src.core.video_processor.frame_sampler import FrameSamplerAbs
 from src.core.video_processor.frame_processor import FrameProcessorAbs
 from src.utils.io import save_results_to_json
+
+logger = logging.getLogger(__name__)
 
 class VideoToTextPipeline:
     def __init__(
@@ -36,3 +39,4 @@ class VideoToTextPipeline:
         frames = self.framesampler.sample_frames(video_path, scenes)
         processed = self.frameprocessor.process_frames(frames)
         save_results_to_json(transcript=transcript, video_results=processed, output_dir=output_dir)
+        logger.info(f"Результаты сохранены в: {output_dir.resolve()}")
