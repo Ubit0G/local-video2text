@@ -8,7 +8,6 @@ from src.core.audio_processor.audio_transcriber import Transcriber
 from src.core.video_processor.scene_detector import SceneDetectionAbs
 from src.core.video_processor.frame_sampler import FrameSamplerAbs
 from src.core.video_processor.frame_processor import FrameProcessorAbs
-from src.datamodels.audio_transcript import Transcript
 from src.utils.io import save_results_to_json
 
 class VideoToTextPipeline:

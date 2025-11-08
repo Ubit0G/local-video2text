@@ -5,10 +5,11 @@ from pathlib import Path
 from typing import List, Tuple, Optional, Union
 from dataclasses import asdict
 from src.datamodels.audio_transcript import Transcript, Segment
+from src.datamodels.video_transcript import Picture
 
 def save_results_to_json(
     transcript: Transcript,
-    video_results: List[Tuple[float, str, List[str]]],
+    video_results: List[Tuple[float, int, str, List[str]]],
     output_dir: Union[str, Path] = "output"
 ):
     """
@@ -40,11 +41,12 @@ def save_results_to_json(
     # 2. Сохраняем описание видео
     video_description = [
         {
-            "timestamp_seconds": ts,
+            "timestamp_seconds": time,
+            "scene_id": scene_id,
             "visual_caption": caption,
             "on_screen_text": texts
         }
-        for (ts, caption, texts) in video_results
+        for (time, scene_id, caption, texts) in video_results
     ]
     with open(output_path / "video_description.json", "w", encoding="utf-8") as f:
         json.dump(video_description, f, ensure_ascii=False, indent=2)

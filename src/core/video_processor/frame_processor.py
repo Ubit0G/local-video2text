@@ -10,11 +10,13 @@ import torch
 import easyocr
 from transformers import AutoProcessor, AutoModelForCausalLM
 
+from src.datamodels.video_transcript import Picture
+
 logger = logging.getLogger(__name__)
 
 class FrameProcessorAbs(ABC):
     @abstractmethod
-    def process_frames(self, frames: List[Tuple[float, np.ndarray]]) -> List[Tuple[float, str, List[str]]]:
+    def process_frames(self, frames: List[Picture]) -> List[Tuple[float, int, str, List[str]]]:
         pass
 
 class FrameProcessor(FrameProcessorAbs):
@@ -53,26 +55,23 @@ class FrameProcessor(FrameProcessorAbs):
         self.ocr_reader = easyocr.Reader(ocr_languages, gpu=(self.device == "cuda"))
 
     # Возвращает список кортежей: (таймкод, caption, [on-screen текст]).
-    def process_frames(self,frames: List[Tuple[float, np.ndarray]]) -> List[Tuple[float, str, List[str]]]:
+    def process_frames(self,frames: List[Picture]) -> List[Tuple[float, int, str, List[str]]]:
 
         if not frames:
             return []
 
         results = []
-        for i, (timestamp, frame_bgr) in enumerate(frames):
-            if frame_bgr is None or not isinstance(frame_bgr, np.ndarray) or frame_bgr.size == 0:
-                logger.warning(f"Пропуск некорректного кадра в {timestamp:.2f} сек")
+        for frame in frames:
+            if frame.picture is None or not isinstance(frame.picture, np.ndarray) or frame.picture.size == 0:
                 continue
 
-            logger.debug(f"Обработка кадра {i+1}/{len(frames)} на {timestamp:.2f} сек")
-
             # Caption через Florence-2
-            caption = self._generate_caption(frame_bgr)
+            caption = self._generate_caption(frame.picture)
 
             # OCR через EasyOCR
-            ocr_texts = self._run_ocr(frame_bgr)
+            ocr_texts = self._run_ocr(frame.picture)
 
-            results.append((timestamp, caption, ocr_texts))
+            results.append((frame.time, frame.scene_id, caption, ocr_texts))
 
         return results
 

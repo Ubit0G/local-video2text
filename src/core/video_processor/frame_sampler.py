@@ -6,17 +6,17 @@ from typing import List, Tuple, Union
 import cv2
 import numpy as np
 
-from src.datamodels.video_transcript import Scene
+from src.datamodels.video_transcript import Scene, Picture
 
 class FrameSamplerAbs(ABC):
     @abstractmethod
-    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene]) -> List[Tuple[float, np.ndarray]]:
+    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene]) -> List[Picture]:
         pass
 
 class FrameSampler(FrameSamplerAbs):
 
     # Извлечение кадра из середины сцены и начала сцены
-    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene]) -> List[Tuple[float, np.ndarray]]:
+    def sample_frames(self, video_path: Union[str, Path], scenes: List[Scene]) -> List[Picture]:
 
         if not scenes:
             return []
@@ -34,12 +34,12 @@ class FrameSampler(FrameSamplerAbs):
             if fps <= 0:
                 fps = 30.0
 
-            sampled_frames: List[Tuple[float, np.ndarray]] = []
+            sampled_frames: List[Picture] = []
 
-            for scene in scenes:
+            for scene_id, scene in enumerate(scenes):
 
                 start_time = scene.start_seconds
-                start_frame_number = int(mid_time * fps)
+                start_frame_number = int(start_time * fps)
                 cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame_number)
                 ret_start, frame_start = cap.read()
 
@@ -49,9 +49,9 @@ class FrameSampler(FrameSamplerAbs):
                 ret_mid, frame_mid = cap.read()
 
                 if ret_start:
-                    sampled_frames.append((start_time, frame_start))
+                    sampled_frames.append(Picture(time = start_time, scene_id = scene_id, picture = frame_start))
                 if ret_mid:
-                    sampled_frames.append((mid_time, frame_mid))
+                    sampled_frames.append(Picture(time = mid_time, scene_id = scene_id, picture = frame_mid))
 
             return sampled_frames
 
