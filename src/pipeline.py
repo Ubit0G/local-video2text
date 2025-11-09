@@ -35,6 +35,7 @@ class VideoToTextPipeline:
         audio_path = self.temp_dir / f"{video_path.stem}.wav"
         self.audio_extractor.extract(video_path, audio_path)
         transcript = self.transcriber.transcribe(audio_path, language=audiolanguage)
+        self.audio_extractor.cleanup_audio(audio_path)
         scenes = self.scenedetector.process(video_path)
         frames = self.framesampler.sample_frames(video_path, scenes)
         processed = self.frameprocessor.process_frames(frames)
